@@ -21,5 +21,20 @@ public class ChatController {
     @GetMapping("/api/teacher")
     public String teacher(@RequestParam String message) {
         return chatService.teacher(message);
+    }
 
+    @GetMapping("/api/safe-chat")
+    public String safeChat(@RequestParam String message) {
+        return chatService.safeChat(message);
+    }
+
+    @GetMapping("/api/code-explain")
+    public String codeExplain(@RequestParam String message) {
+        return chatService.codeExplain(message);
+    }
+
+    @GetMapping("/api/interview-questions")
+    public String interviewQuestions(@RequestParam String message) {
+        return chatService.interviewQuestions(message);
+    }
 }
