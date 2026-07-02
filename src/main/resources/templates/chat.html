@@ -3,21 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spring AI Chatbot</title>
-    <!-- Google Fonts 및 Material Icons 로드 -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>Spring AI Multi Tool</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent-color: #6366f1;
-            --accent-hover: #4f46e5;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --chat-user-bg: #4f46e5;
-            --chat-ai-bg: #334155;
+            --bg: #07111f;
+            --panel: rgba(7, 17, 31, 0.84);
+            --panel-strong: rgba(10, 22, 40, 0.96);
+            --line: rgba(131, 148, 171, 0.22);
+            --text-main: #edf4ff;
+            --text-soft: #a4b3c8;
+            --user-bg: #1f6f8b;
+            --assistant-bg: rgba(23, 40, 66, 0.92);
+            --accent: #ff8a3d;
+            --accent-soft: rgba(255, 138, 61, 0.18);
+            --shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
         }
 
         * {
@@ -27,74 +30,215 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            font-family: "IBM Plex Sans KR", sans-serif;
+            color: var(--text-main);
+            background:
+                radial-gradient(circle at top left, rgba(255, 138, 61, 0.18), transparent 28%),
+                radial-gradient(circle at top right, rgba(31, 111, 139, 0.28), transparent 30%),
+                linear-gradient(160deg, #040b14 0%, #081524 48%, #0c1930 100%);
+            padding: 28px;
         }
 
-        .chat-container {
-            width: 100%;
-            max-width: 800px;
-            height: 80vh;
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-            display: flex;
-            flex-direction: column;
+        .app-shell {
+            width: min(1200px, 100%);
+            margin: 0 auto;
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            box-shadow: var(--shadow);
             overflow: hidden;
-            border: 1px solid #334155;
         }
 
-        /* 헤더 스타일 */
-        .chat-header {
-            padding: 20px;
-            background-color: #1e293b;
-            border-bottom: 1px solid #334155;
-            display: flex;
+        .hero {
+            padding: 28px 32px 22px;
+            border-bottom: 1px solid var(--line);
+            background:
+                linear-gradient(135deg, rgba(255, 138, 61, 0.12), transparent 40%),
+                linear-gradient(180deg, rgba(7, 17, 31, 0.65), rgba(7, 17, 31, 0.25));
+        }
+
+        .eyebrow {
+            display: inline-flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: #ffd2b2;
+            font-size: 0.84rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
         }
 
-        .chat-header .logo-icon {
-            background-color: var(--accent-color);
-            color: white;
-            padding: 8px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .hero h1 {
+            margin-top: 16px;
+            font-size: clamp(1.9rem, 3vw, 2.7rem);
+            line-height: 1.1;
+            font-weight: 700;
         }
 
-        .chat-header h1 {
-            font-size: 1.25rem;
+        .hero p {
+            margin-top: 12px;
+            max-width: 760px;
+            color: var(--text-soft);
+            line-height: 1.7;
+            font-size: 0.98rem;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            min-height: 760px;
+        }
+
+        .mode-panel {
+            border-right: 1px solid var(--line);
+            background: linear-gradient(180deg, rgba(10, 22, 40, 0.96), rgba(7, 17, 31, 0.96));
+            padding: 26px 20px;
+        }
+
+        .panel-title {
+            font-size: 0.82rem;
+            color: var(--text-soft);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
             font-weight: 600;
         }
 
-        .chat-header p {
-            font-size: 0.85rem;
-            color: var(--text-muted);
+        .mode-list {
+            display: grid;
+            gap: 12px;
+            margin-top: 16px;
         }
 
-        /* 채팅 본문 영역 */
-        .chat-messages {
+        .mode-button {
+            width: 100%;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-main);
+            border-radius: 16px;
+            padding: 14px 16px;
+            text-align: left;
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+        }
+
+        .mode-button:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255, 138, 61, 0.45);
+            background: rgba(255, 138, 61, 0.06);
+        }
+
+        .mode-button.active {
+            border-color: rgba(255, 138, 61, 0.7);
+            background: linear-gradient(135deg, rgba(255, 138, 61, 0.18), rgba(31, 111, 139, 0.12));
+            box-shadow: inset 0 0 0 1px rgba(255, 138, 61, 0.22);
+        }
+
+        .mode-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .mode-name .material-icons {
+            font-size: 1.15rem;
+            color: #ffd2b2;
+        }
+
+        .mode-description {
+            margin-top: 8px;
+            color: var(--text-soft);
+            font-size: 0.88rem;
+            line-height: 1.55;
+        }
+
+        .mode-guide {
+            margin-top: 24px;
+            padding: 18px;
+            border-radius: 18px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .mode-guide h2 {
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
+
+        .mode-guide p {
+            margin-top: 10px;
+            color: var(--text-soft);
+            line-height: 1.7;
+            font-size: 0.92rem;
+        }
+
+        .mode-guide code {
+            display: inline-block;
+            margin-top: 12px;
+            color: #ffd2b2;
+            font-size: 0.85rem;
+        }
+
+        .main-panel {
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(180deg, rgba(6, 15, 28, 0.9), rgba(8, 18, 32, 0.98));
+        }
+
+        .tool-summary {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 16px;
+            padding: 24px 28px 18px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .summary-card,
+        .hint-card {
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 18px 20px;
+            background: rgba(255, 255, 255, 0.025);
+        }
+
+        .summary-label {
+            font-size: 0.8rem;
+            color: var(--text-soft);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+        }
+
+        .summary-card h2 {
+            margin-top: 10px;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .summary-card p,
+        .hint-card p {
+            margin-top: 10px;
+            color: var(--text-soft);
+            line-height: 1.7;
+            font-size: 0.93rem;
+        }
+
+        .transcript {
             flex: 1;
-            padding: 24px;
             overflow-y: auto;
+            padding: 24px 28px;
             display: flex;
             flex-direction: column;
             gap: 16px;
-            background-color: #0f172a;
         }
 
-        /* 말풍선 스타일 */
         .message-row {
             display: flex;
-            width: 100%;
             gap: 12px;
         }
 
@@ -102,267 +246,543 @@
             justify-content: flex-end;
         }
 
-        .message-row.ai {
+        .message-row.assistant {
             justify-content: flex-start;
         }
 
-        .message-bubble {
-            max-width: 70%;
-            padding: 14px 18px;
-            border-radius: 14px;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            word-break: break-all;
-            white-space: pre-wrap;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .message-row.user .message-bubble {
-            background-color: var(--chat-user-bg);
-            color: white;
-            border-bottom-right-radius: 2px;
-        }
-
-        .message-row.ai .message-bubble {
-            background-color: var(--chat-ai-bg);
-            color: var(--text-main);
-            border-bottom-left-radius: 2px;
-            border: 1px solid #475569;
-        }
-
         .avatar {
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.1rem;
             flex-shrink: 0;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.04);
         }
 
         .message-row.user .avatar {
-            background-color: #312e81;
-            color: #c7d2fe;
             order: 2;
+            background: rgba(31, 111, 139, 0.24);
         }
 
-        .message-row.ai .avatar {
-            background-color: #1e1b4b;
-            color: #818cf8;
+        .message-body {
+            max-width: min(720px, 88%);
+            border-radius: 18px;
+            padding: 16px 18px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-break: break-word;
+            border: 1px solid var(--line);
         }
 
-        /* 입력 폼 영역 */
-        .chat-input-area {
-            padding: 20px;
-            background-color: var(--card-bg);
-            border-top: 1px solid #334155;
+        .message-row.user .message-body {
+            background: var(--user-bg);
+            color: white;
+            border-bottom-right-radius: 6px;
+            border-color: rgba(255, 255, 255, 0.08);
         }
 
-        .chat-form {
+        .message-row.assistant .message-body {
+            background: var(--assistant-bg);
+            border-bottom-left-radius: 6px;
+        }
+
+        .message-meta {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #ffd2b2;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .composer {
+            padding: 22px 28px 28px;
+            border-top: 1px solid var(--line);
+            background: rgba(7, 17, 31, 0.82);
+        }
+
+        .composer-head {
             display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .composer-head h3 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .composer-head p {
+            color: var(--text-soft);
+            font-size: 0.9rem;
+        }
+
+        .mode-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: rgba(255, 138, 61, 0.12);
+            border: 1px solid rgba(255, 138, 61, 0.25);
+            color: #ffd2b2;
+            font-size: 0.83rem;
+            font-weight: 600;
+        }
+
+        .composer-form {
+            display: grid;
             gap: 12px;
         }
 
-        .chat-input {
-            flex: 1;
-            background-color: #0f172a;
-            border: 1px solid #334155;
+        .input-surface {
+            width: 100%;
+            min-height: 88px;
+            resize: vertical;
+            border-radius: 18px;
+            border: 1px solid var(--line);
+            background: rgba(2, 8, 15, 0.58);
             color: var(--text-main);
-            padding: 14px 18px;
-            border-radius: 10px;
-            font-size: 0.95rem;
+            padding: 16px 18px;
+            font: inherit;
+            line-height: 1.65;
             outline: none;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .chat-input:focus {
-            border-color: var(--accent-color);
+        .input-surface:focus {
+            border-color: rgba(255, 138, 61, 0.72);
+            box-shadow: 0 0 0 3px rgba(255, 138, 61, 0.12);
         }
 
-        .send-button {
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 0 24px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 500;
+        .composer-actions {
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hint-text {
+            color: var(--text-soft);
+            font-size: 0.88rem;
+        }
+
+        .submit-button {
+            border: none;
+            border-radius: 14px;
+            padding: 13px 18px;
+            min-width: 144px;
+            background: linear-gradient(135deg, #ff8a3d, #ff6b3d);
+            color: white;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: background-color 0.2s;
+            transition: transform 0.2s ease, filter 0.2s ease;
         }
 
-        .send-button:hover {
-            background-color: var(--accent-hover);
+        .submit-button:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.04);
         }
 
-        .send-button:disabled {
-            background-color: #475569;
+        .submit-button:disabled {
             cursor: not-allowed;
+            opacity: 0.65;
+            transform: none;
         }
 
-        /* 대기 중 애니메이션 */
-        .typing-indicator {
-            display: flex;
-            gap: 4px;
+        .typing {
+            display: inline-flex;
+            gap: 6px;
             align-items: center;
-            height: 20px;
         }
 
-        .typing-dot {
-            width: 6px;
-            height: 6px;
-            background-color: var(--text-muted);
+        .typing span {
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
-            animation: bounce 1.4s infinite ease-in-out both;
+            background: var(--text-soft);
+            animation: blink 1.3s infinite ease-in-out both;
         }
 
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        .typing span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
 
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1.0); }
+        .typing span:nth-child(3) {
+            animation-delay: -0.32s;
+        }
+
+        @keyframes blink {
+            0%, 80%, 100% {
+                transform: scale(0.4);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 980px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+
+            .mode-panel {
+                border-right: none;
+                border-bottom: 1px solid var(--line);
+            }
+
+            .tool-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 14px;
+            }
+
+            .hero,
+            .mode-panel,
+            .tool-summary,
+            .transcript,
+            .composer {
+                padding-left: 18px;
+                padding-right: 18px;
+            }
+
+            .composer-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .submit-button {
+                width: 100%;
+            }
+
+            .message-body {
+                max-width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-
-<div class="chat-container">
-    <!-- 헤더 -->
-    <div class="chat-header">
-        <div class="logo-icon">
-            <span class="material-icons">smart_toy</span>
+<div class="app-shell">
+    <header class="hero">
+        <div class="eyebrow">
+            <span class="material-icons">auto_awesome</span>
+            Day 1 Mini Project
         </div>
-        <div>
-            <h1>Spring AI Assistant</h1>
-            <p>Gemini 3.1 Flash-Lite 기반 채팅 서비스</p>
-        </div>
-    </div>
+        <h1>Spring AI Multi Tool Workspace</h1>
+        <p>
+            하나의 화면에서 일반 채팅, 선생님 모드, 안정 응답, 코드 설명, 면접 질문 생성을 전환하며
+            `system()`, `user()`, `call()` 패턴이 어떻게 다른 도구로 확장되는지 바로 확인할 수 있습니다.
+        </p>
+    </header>
 
-    <!-- 메시지 목록 -->
-    <div class="chat-messages" id="chatMessages">
-        <!-- 기본 안내 메시지 -->
-        <div class="message-row ai">
-            <div class="avatar"><span class="material-icons">smart_toy</span></div>
-            <div class="message-bubble">안녕하세요! Spring AI에 대해 궁금한 점을 질문해 주세요.</div>
-        </div>
-    </div>
+    <div class="workspace">
+        <aside class="mode-panel">
+            <div class="panel-title">Mode Switcher</div>
+            <div class="mode-list" id="modeList">
+                <button type="button" class="mode-button active" data-mode="chat">
+                    <div class="mode-name">
+                        <span class="material-icons">chat</span>
+                        일반 채팅
+                    </div>
+                    <div class="mode-description">가장 기본적인 ChatClient 호출입니다.</div>
+                </button>
+                <button type="button" class="mode-button" data-mode="teacher">
+                    <div class="mode-name">
+                        <span class="material-icons">school</span>
+                        선생님 모드
+                    </div>
+                    <div class="mode-description">개념, 예시, 주의점을 포함한 설명형 응답입니다.</div>
+                </button>
+                <button type="button" class="mode-button" data-mode="safe-chat">
+                    <div class="mode-name">
+                        <span class="material-icons">verified_user</span>
+                        안정 응답
+                    </div>
+                    <div class="mode-description">낮은 temperature로 더 차분한 답변을 받습니다.</div>
+                </button>
+                <button type="button" class="mode-button" data-mode="code-explain">
+                    <div class="mode-name">
+                        <span class="material-icons">code</span>
+                        코드 설명
+                    </div>
+                    <div class="mode-description">코드 스니펫의 목적과 흐름을 초보자 기준으로 풉니다.</div>
+                </button>
+                <button type="button" class="mode-button" data-mode="interview-questions">
+                    <div class="mode-name">
+                        <span class="material-icons">quiz</span>
+                        면접 질문
+                    </div>
+                    <div class="mode-description">기술 스택을 넣으면 예상 질문과 답변 방향을 생성합니다.</div>
+                </button>
+            </div>
 
-    <!-- 입력 폼 -->
-    <div class="chat-input-area">
-        <form class="chat-form" id="chatForm">
-            <input type="text" id="userInput" class="chat-input" placeholder="메시지를 입력하세요..." required autocomplete="off">
-            <button type="submit" id="sendBtn" class="send-button">
-                <span>전송</span>
-                <span class="material-icons">send</span>
-            </button>
-        </form>
+            <section class="mode-guide">
+                <h2 id="guideTitle">일반 채팅</h2>
+                <p id="guideText">질문을 자유롭게 입력해서 모델의 기본 응답을 확인해보세요.</p>
+                <code id="guideEndpoint">GET /api/chat</code>
+            </section>
+        </aside>
+
+        <main class="main-panel">
+            <section class="tool-summary">
+                <div class="summary-card">
+                    <div class="summary-label">Current Tool</div>
+                    <h2 id="summaryTitle">일반 채팅</h2>
+                    <p id="summaryDescription">별도의 역할 지시 없이 사용자 질문만 전달하는 가장 기본적인 AI 호출입니다.</p>
+                </div>
+                <div class="hint-card">
+                    <div class="summary-label">Input Tip</div>
+                    <p id="summaryHint">Spring AI가 뭐야? 처럼 짧고 명확한 질문으로 시작하면 흐름을 확인하기 좋습니다.</p>
+                </div>
+            </section>
+
+            <section class="transcript" id="chatMessages">
+                <div class="message-row assistant">
+                    <div class="avatar"><span class="material-icons">smart_toy</span></div>
+                    <div class="message-body">
+                        <div class="message-meta">일반 채팅</div>
+                        오늘 만든 Spring AI 도구들을 여기서 바로 바꿔가며 시험해볼 수 있습니다. 먼저 하나를 고르고 입력을 보내보세요.
+                    </div>
+                </div>
+            </section>
+
+            <section class="composer">
+                <div class="composer-head">
+                    <div>
+                        <h3 id="composerTitle">메시지 입력</h3>
+                        <p id="composerDescription">한 줄 질문으로도 충분합니다.</p>
+                    </div>
+                    <div class="mode-chip" id="activeModeChip">
+                        <span class="material-icons">tune</span>
+                        일반 채팅
+                    </div>
+                </div>
+
+                <form class="composer-form" id="chatForm">
+                    <textarea id="userInput" class="input-surface" placeholder="예: Spring AI가 무엇인지 쉽게 설명해줘." required></textarea>
+                    <div class="composer-actions">
+                        <div class="hint-text" id="helperText">현재 모드는 /api/chat 엔드포인트를 호출합니다.</div>
+                        <button type="submit" class="submit-button" id="sendBtn">
+                            <span class="material-icons">send</span>
+                            요청 보내기
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </main>
     </div>
 </div>
 
 <script>
-    const chatForm = document.getElementById('chatForm');
-    const userInput = document.getElementById('userInput');
-    const chatMessages = document.getElementById('chatMessages');
-    const sendBtn = document.getElementById('sendBtn');
+    const modes = {
+        "chat": {
+            label: "일반 채팅",
+            endpoint: "/api/chat",
+            icon: "chat",
+            summary: "별도의 역할 지시 없이 사용자 질문만 전달하는 가장 기본적인 AI 호출입니다.",
+            guide: "질문을 자유롭게 입력해서 모델의 기본 응답을 확인해보세요.",
+            hint: "Spring AI가 뭐야? 처럼 짧고 명확한 질문으로 시작하면 흐름을 확인하기 좋습니다.",
+            composer: "한 줄 질문으로도 충분합니다.",
+            placeholder: "예: Spring AI가 무엇인지 쉽게 설명해줘."
+        },
+        "teacher": {
+            label: "선생님 모드",
+            endpoint: "/api/teacher",
+            icon: "school",
+            summary: "system prompt로 선생님 역할을 부여해 핵심 개념, 예시, 주의점을 함께 설명합니다.",
+            guide: "개념이 헷갈리는 주제를 넣으면 수업처럼 풀어서 답해줍니다.",
+            hint: "POJO가 뭐야?, DI가 왜 필요한데? 같은 학습 질문에 잘 맞습니다.",
+            composer: "배우는 입장에서 궁금한 개념을 적어보세요.",
+            placeholder: "예: POJO와 Bean의 차이를 초보자 기준으로 설명해줘."
+        },
+        "safe-chat": {
+            label: "안정 응답",
+            endpoint: "/api/safe-chat",
+            icon: "verified_user",
+            summary: "temperature를 낮춰 조금 더 안정적이고 덜 흔들리는 답변을 유도합니다.",
+            guide: "정리형 답변이나 비교적 차분한 표현이 필요할 때 사용해보세요.",
+            hint: "핵심만 간단히 정리하고 싶을 때 적합합니다.",
+            composer: "짧은 질문이나 정리 요청을 입력해보세요.",
+            placeholder: "예: Spring AI 학습 순서를 5줄로 정리해줘."
+        },
+        "code-explain": {
+            label: "코드 설명",
+            endpoint: "/api/code-explain",
+            icon: "code",
+            summary: "코드 스니펫의 목적, 실행 흐름, 핵심 문법, 주의점을 초보자 관점으로 설명합니다.",
+            guide: "Java, Spring Boot, React 코드 일부를 넣고 해설을 받아보세요.",
+            hint: "코드가 여러 줄이면 그대로 붙여 넣어도 됩니다.",
+            composer: "설명이 필요한 코드 조각을 붙여 넣어보세요.",
+            placeholder: "예:\npublic class User {\n    private String name;\n}"
+        },
+        "interview-questions": {
+            label: "면접 질문",
+            endpoint: "/api/interview-questions",
+            icon: "quiz",
+            summary: "입력한 기술 스택을 기준으로 예상 면접 질문과 답변 방향을 생성합니다.",
+            guide: "기술 이름을 쉼표로 나열하면 질문 세트를 빠르게 얻을 수 있습니다.",
+            hint: "Java, Spring Boot, Spring AI, JPA 처럼 입력해보세요.",
+            composer: "준비 중인 기술 스택을 적어보세요.",
+            placeholder: "예: Java, Spring Boot, Spring AI, JPA"
+        }
+    };
 
-    // 메시지 화면 추가 함수
-    function appendMessage(sender, text) {
-        const row = document.createElement('div');
+    const modeButtons = document.querySelectorAll(".mode-button");
+    const chatForm = document.getElementById("chatForm");
+    const userInput = document.getElementById("userInput");
+    const chatMessages = document.getElementById("chatMessages");
+    const sendBtn = document.getElementById("sendBtn");
+    const guideTitle = document.getElementById("guideTitle");
+    const guideText = document.getElementById("guideText");
+    const guideEndpoint = document.getElementById("guideEndpoint");
+    const summaryTitle = document.getElementById("summaryTitle");
+    const summaryDescription = document.getElementById("summaryDescription");
+    const summaryHint = document.getElementById("summaryHint");
+    const composerTitle = document.getElementById("composerTitle");
+    const composerDescription = document.getElementById("composerDescription");
+    const activeModeChip = document.getElementById("activeModeChip");
+    const helperText = document.getElementById("helperText");
+
+    let currentMode = "chat";
+
+    function syncModeUI(modeKey) {
+        const mode = modes[modeKey];
+        currentMode = modeKey;
+
+        modeButtons.forEach((button) => {
+            button.classList.toggle("active", button.dataset.mode === modeKey);
+        });
+
+        guideTitle.textContent = mode.label;
+        guideText.textContent = mode.guide;
+        guideEndpoint.textContent = `GET ${mode.endpoint}`;
+        summaryTitle.textContent = mode.label;
+        summaryDescription.textContent = mode.summary;
+        summaryHint.textContent = mode.hint;
+        composerTitle.textContent = `${mode.label} 입력`;
+        composerDescription.textContent = mode.composer;
+        helperText.textContent = `현재 모드는 ${mode.endpoint} 엔드포인트를 호출합니다.`;
+        activeModeChip.innerHTML = `<span class="material-icons">${mode.icon}</span>${mode.label}`;
+        userInput.placeholder = mode.placeholder;
+        userInput.value = "";
+        userInput.rows = modeKey === "code-explain" ? 8 : 4;
+        userInput.focus();
+    }
+
+    function appendMessage(sender, modeLabel, text) {
+        const row = document.createElement("div");
         row.className = `message-row ${sender}`;
 
-        const avatar = document.createElement('div');
-        avatar.className = 'avatar';
-        avatar.innerHTML = sender === 'user'
+        const avatar = document.createElement("div");
+        avatar.className = "avatar";
+        avatar.innerHTML = sender === "user"
             ? '<span class="material-icons">person</span>'
             : '<span class="material-icons">smart_toy</span>';
 
-        const bubble = document.createElement('div');
-        bubble.className = 'message-bubble';
-        bubble.innerText = text;
+        const body = document.createElement("div");
+        body.className = "message-body";
+        body.innerHTML = `<div class="message-meta">${modeLabel}</div>`;
+
+        const content = document.createElement("div");
+        content.textContent = text;
+        body.appendChild(content);
 
         row.appendChild(avatar);
-        row.appendChild(bubble);
-        chatMessages.appendChild(row);
-
-        // 스크롤 하단 이동
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        return bubble;
-    }
-
-    // 로딩 표시 추가 함수
-    function appendLoading() {
-        const row = document.createElement('div');
-        row.className = 'message-row aiTemp';
-        row.classList.add('message-row', 'ai');
-
-        const avatar = document.createElement('div');
-        avatar.className = 'avatar';
-        avatar.innerHTML = '<span class="material-icons">smart_toy</span>';
-
-        const bubble = document.createElement('div');
-        bubble.className = 'message-bubble';
-        bubble.innerHTML = `
-            <div class="typing-indicator">
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-            </div>
-        `;
-
-        row.appendChild(avatar);
-        row.appendChild(bubble);
+        row.appendChild(body);
         chatMessages.appendChild(row);
         chatMessages.scrollTop = chatMessages.scrollHeight;
         return row;
     }
 
-    // 전송 폼 이벤트 리스너
-    chatForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+    function appendLoading(modeLabel) {
+        const row = document.createElement("div");
+        row.className = "message-row assistant";
+
+        const avatar = document.createElement("div");
+        avatar.className = "avatar";
+        avatar.innerHTML = '<span class="material-icons">smart_toy</span>';
+
+        const body = document.createElement("div");
+        body.className = "message-body";
+        body.innerHTML = `
+            <div class="message-meta">${modeLabel}</div>
+            <div class="typing">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        `;
+
+        row.appendChild(avatar);
+        row.appendChild(body);
+        chatMessages.appendChild(row);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return row;
+    }
+
+    modeButtons.forEach((button) => {
+        button.addEventListener("click", () => syncModeUI(button.dataset.mode));
+    });
+
+    chatForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
         const message = userInput.value.trim();
-        if (!message) return;
+        if (!message) {
+            return;
+        }
 
-        // 1. 사용자 메시지 추가 및 입력창 비우기
-        appendMessage('user', message);
-        userInput.value = '';
-
-        // 2. 입력 제한 및 로딩 표시
+        const mode = modes[currentMode];
+        appendMessage("user", mode.label, message);
+        userInput.value = "";
         userInput.disabled = true;
         sendBtn.disabled = true;
-        const loadingRow = appendLoading();
+
+        const loadingRow = appendLoading(mode.label);
 
         try {
-            // 3. 백엔드 API 호출 (기존에 작성한 ChatController 호출)
-            // @RestController 엔드포인트 URL에 쿼리 스트링으로 메시지 전달
-            const url = `/api/chat?message=${encodeURIComponent(message)}`;
+            const url = `${mode.endpoint}?message=${encodeURIComponent(message)}`;
             const response = await fetch(url);
 
             if (!response.ok) {
-                throw new Error('서버 에러가 발생했습니다.');
+                throw new Error(`HTTP ${response.status}`);
             }
 
             const replyText = await response.text();
-
-            // 4. 로딩 제거 후 AI 답변 추가
             loadingRow.remove();
-            appendMessage('ai', replyText);
-
+            appendMessage("assistant", mode.label, replyText);
         } catch (error) {
             console.error(error);
             loadingRow.remove();
-            appendMessage('ai', '죄송합니다. 답변을 불러오는 데 실패했습니다. 다시 시도해 주세요.');
+            appendMessage("assistant", mode.label, "요청 처리 중 문제가 생겼습니다. API 키와 서버 로그를 함께 확인해주세요.");
         } finally {
-            // 5. 입력 활성화
             userInput.disabled = false;
             sendBtn.disabled = false;
             userInput.focus();
         }
     });
+
+    syncModeUI(currentMode);
 </script>
 </body>
 </html>
