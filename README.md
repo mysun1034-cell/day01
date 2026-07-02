@@ -2,6 +2,11 @@
 
 Spring AI `ChatClient`의 `.system()`, `.user()`, `.call()` 패턴을 사용해 만든 Day 1 미니 실습 프로젝트입니다.
 
+## UI 구성 화면
+![UI 구성] (images/capture.PNG)
+
+
+
 ## 실행 준비
 
 Google GenAI API 키를 환경변수로 설정한 뒤 실행합니다.
