@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: day02-prompt-output
+  ai:
+    google:
+      genai:
+        chat:
+          model: gemini-3.1-flash-lite
+        api-key: ${GOOGLE_API_KEY}
