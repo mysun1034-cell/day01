@@ -1,81 +1,81 @@
-# Spring AI Day 1 - ChatClient Mini Tools
+# Spring AI Study
 
-Spring AI `ChatClient`의 `.system()`, `.user()`, `.call()` 패턴을 사용해 만든 Day 1 학습용 미니 프로젝트입니다.
+Spring AI를 처음 배우면서 Day1, Day2, 그리고 `ch03-prompt` 자습 내용을 누적 정리한 학습 저장소입니다.
 
-## UI 구성 화면
+## 한눈에 보기
 
-![UI 구성](images/capture.PNG)
+- Day1: Spring AI 첫 호출, `Controller -> Service -> ChatClient` 흐름 이해
+- Day2: Prompt 설계, JSON/Object/List 형태의 Structured Output 실습
+- 자습: `ch03-prompt` 프로젝트로 Prompt Template, Few-shot, Role Assignment 등 프롬프트 기법 분석
+- 정리 자료: 학습 로그, 시각화 Markdown, 발표용 PPT
 
-## 프로젝트 개요
+## 시각화 자료
 
-이 프로젝트는 하나의 Gemini 모델을 여러 역할로 나누어 사용하는 연습을 목표로 합니다.
+- 발표용 PPT: [DAY1_DAY2_VISUAL.pptx](DAY1_DAY2_VISUAL.pptx)
+- 학습 누적 로그: [STUDY_LOG.md](STUDY_LOG.md)
 
-- 일반 채팅
-- 선생님 모드
-- 안정 응답 모드
-- 코드 설명 도우미
-- 면접 질문 생성기
+## 프로젝트 구성
 
-현재 `/chat` 화면에서는 위 기능들을 하나의 통합 UI에서 전환해 사용할 수 있습니다.
+| 폴더 | 내용 |
+|---|---|
+| `day01-chat-client` | Spring AI `ChatClient` 첫 호출, `/api/chat`, `/api/teacher`, HTML UI 실습 |
+| `day02-prompt-output` | Prompt 설계, `record`, `entity()`, `List` 응답 실습 |
+| `ch03-prompt` | Prompt Template, Zero-shot, Few-shot, Multi Messages 등 프롬프트 기법 자습 |
 
-## 실행 방법
+## 핵심 흐름
 
-Google GenAI API 키를 환경변수로 설정한 뒤 실행합니다.
-
-```powershell
-$env:GOOGLE_API_KEY="본인_API_KEY"
-.\gradlew.bat bootRun
+```mermaid
+flowchart LR
+    U["사용자"] --> C["Controller"]
+    C --> S["Service"]
+    S --> CC["ChatClient"]
+    CC --> AI["AI Model"]
+    AI --> R["Response"]
+    R --> U
 ```
 
-기본 접속 주소는 다음과 같습니다.
+## Day1 요약
 
-```text
-http://localhost:8080/chat
+Day1의 목표는 AI를 Spring Boot 앱 안에서 처음 호출해보는 것이었습니다.
+
+```java
+return chatClient.prompt()
+        .user(message)
+        .call()
+        .content();
 ```
 
-## API 엔드포인트
+이 코드는 AI에게 보낼 대화 묶음을 만들고, 사용자 질문을 넣고, 실제 호출한 뒤, 응답 본문만 꺼내는 흐름입니다.
 
-### 1. 일반 채팅
+## Day2 요약
 
-```text
-GET /api/chat?message=안녕
-```
+Day2의 목표는 AI에게 원하는 방식으로 말 걸고 원하는 형태로 응답받는 것이었습니다.
 
-### 2. 선생님 모드
+| 기능 | 엔드포인트 | 응답 형태 |
+|---|---|---|
+| 요약 | `/api/summary` | `String` |
+| 분류 | `/api/classify` | `String` |
+| 분류 JSON | `/api/classify/json` | JSON 문자열 |
+| 분류 객체 | `/api/classify/object` | `InquiryResult` |
+| 영화 추천 | `/api/movie` | `List<MovieResponse>` |
+| 준비물 추천 | `/api/packing` | `List<String>` |
 
-```text
-GET /api/teacher?message=POJO가 뭐야?
-```
+## 오늘 자습 요약
 
-### 3. 안정 응답
+`ch03-prompt`는 프롬프트 전략을 기능별로 나누어 실습하는 프로젝트입니다.
 
-```text
-GET /api/safe-chat?message=Spring AI 학습 순서를 5줄로 정리해줘
-```
+- `prompt-template`: 빈칸이 있는 프롬프트 틀에 값을 넣는 방식
+- `multi-messages`: 이전 대화 내용을 기억하며 이어서 대화하는 방식
+- `default-method`: `ChatClient.Builder`에 기본 시스템 메시지와 옵션을 미리 설정하는 방식
+- `zero-shot-prompt`: 예시 없이 바로 작업을 시키는 방식
+- `few-shot-prompt`: 예시를 보여준 뒤 같은 형식으로 답하게 하는 방식
+- `role-assignment`: AI에게 특정 역할을 부여하는 방식
+- `step-back-prompt`: 큰 질문을 작은 질문으로 나눠 단계적으로 답하는 방식
+- `chain-of-thought`: 풀이 과정을 단계적으로 설명하게 하는 방식
+- `self-consistency`: 여러 번 답을 받아 다수결로 안정성을 높이는 방식
 
-### 4. 코드 설명 도우미
+## 학습 메모
 
-```text
-GET /api/code-explain?message=public class User { private String name; }
-```
+지금까지 가장 중요한 문장은 이것입니다.
 
-### 5. 면접 질문 생성기
-
-```text
-GET /api/interview-questions?message=Java, Spring Boot, Spring AI
-```
-
-## 코드 구조
-
-- `src/main/java/com/study/day01/Day01Application.java`: Spring Boot 실행 진입점
-- `src/main/java/com/study/day01/ChaViewController.java`: `/chat` 화면 반환
-- `src/main/java/com/study/day01/ChatController.java`: API 엔드포인트 연결
-- `src/main/java/com/study/day01/ChatService.java`: Spring AI `ChatClient` 호출 로직
-- `src/main/resources/templates/chat.html`: 통합 멀티 툴 UI
-- `src/main/resources/application.yaml`: Gemini 모델 및 API 키 설정
-
-## 학습 기록
-
-오늘 학습 내용 전체 정리는 아래 문서에 기록했습니다.
-
-- [Day 1 학습 기록](docs/day01-study-log.md)
+> Day1은 AI를 앱에 연결하는 날이고, Day2는 AI에게 원하는 방식으로 말 걸고 원하는 모양으로 응답받는 날입니다.
